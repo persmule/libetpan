@@ -276,10 +276,10 @@ static int get_hostname(mailsmtp * session, int useip, char * buf, int len)
     if (r != 0)
       return MAILSMTP_ERROR_HOSTNAME;
 
-#if (defined __linux__ || defined WIN32)
-    r = getnameinfo(&addr, sizeof(addr), hostname, HOSTNAME_SIZE, NULL, 0, NI_NUMERICHOST);
-#else
+#if (defined _HAVE_SA_LEN /*For *BSD*/|| defined __APPLE__ /*For Darwin, which do have sa_len but lack _HAVE_SA_LEN*/)
     r = getnameinfo(&addr, addr.sa_len, hostname, HOSTNAME_SIZE, NULL, 0, NI_NUMERICHOST);
+#else //For other *nices (include Cygwin) and M$WIN
+    r = getnameinfo(&addr, sizeof(addr), hostname, HOSTNAME_SIZE, NULL, 0, NI_NUMERICHOST);
 #endif
     if (r != 0)
       return MAILSMTP_ERROR_HOSTNAME;
